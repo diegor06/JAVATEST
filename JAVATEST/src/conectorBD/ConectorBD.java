@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class ConectorBD {
-	public static final String URL = "jdbc:mysql://localhost:3306/Proyecto";
+	public static final String URL = "jdbc:mysql://localhost:3306/javatest";
 	public static final String USER = "root";
 	public static final String PASSWORD = "1234";
 
