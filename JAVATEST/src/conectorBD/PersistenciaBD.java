@@ -3,6 +3,9 @@ package conectorBD;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
+import javax.swing.JOptionPane;
+
 import logica.Electrodomestico;
 
 
@@ -45,6 +48,8 @@ public class PersistenciaBD {
 			pst1.execute();
 
 		} catch (SQLException e) {
+			
+			JOptionPane.showMessageDialog(null, "No se pueden persisitir los datos, revise la base de datos.");
 			
 		}
 
