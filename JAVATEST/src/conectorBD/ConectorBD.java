@@ -3,11 +3,20 @@ package conectorBD;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
+/**
+ * Clase encargada de conectar MYSQL con el proyecto en JAVA
+ * @author Diego Andres Riveros Lopez
+ *
+ */
 public class ConectorBD {
 	public static final String URL = "jdbc:mysql://localhost:3306/javatest";
 	public static final String USER = "root";
 	public static final String PASSWORD = "1234";
 
+	/**
+	 * Metodo que conecta la database con el proyecto JAVA
+	 * @return conexion
+	 */
 	public static Connection establecerConexion() {
 		Connection c = null;
 

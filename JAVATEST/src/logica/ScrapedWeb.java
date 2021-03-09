@@ -1,5 +1,8 @@
 package logica;
 
+import java.sql.Connection;
+import java.util.ArrayList;
+
 import javax.swing.JOptionPane;
 
 import org.jsoup.Jsoup;
@@ -7,24 +10,43 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import conectorBD.ConectorBD;
+import conectorBD.PersistenciaBD;
+
+/**
+ * Clase encargada obtener los datos del html
+ * 
+ * @author Diego Andres Riveros Lopez
+ */
 public class ScrapedWeb {
-	
-	
+
+	/*
+	 * Atributos
+	 */
+	private static Connection conector;
 	private static String url;
 	private static String urlProducto;
 	private static String nombre;
 	private static String brand;
 	private static double precio;
 	private static String descripcion;
-	
-	
+	private static ArrayList<Electrodomestico> lstElectrodomesticos;
 
-	public ScrapedWeb(String url) {
+	/*
+	 * Constructor
+	 */
+	public ScrapedWeb(String url, Connection con) {
 		this.url = url;
+		this.conector = con;
+		lstElectrodomesticos = new ArrayList<Electrodomestico>();
 		scapping();
-		
 	}
 
+	/**
+	 * Metodo encargado de obtener el html de la pagina web
+	 * @param url direccion URL de la pagina web
+	 * @return documento html
+	 */
 	public static Document getHTMLWeb(String url) {
 
 		Document html = null;
@@ -37,47 +59,53 @@ public class ScrapedWeb {
 		return html;
 	}
 
+	/**
+	 * Metodo encargado de obtener los datos especificos del documento html
+	 */
 	public static void scapping() {
 
-		Elements electrodomesticos = ScrapedWeb
-				.getHTMLWeb(url)
-				.select("div.dpr_container");
+		Elements electrodomesticos = ScrapedWeb.getHTMLWeb(url).select("div.dpr_container");
 
-		
 		for (Element electrodomestico : electrodomesticos) {
 			try {
 				urlProducto = electrodomestico.select("a").attr("abs:href");
-				System.out.println(urlProducto);
 
-				Elements datosElectrodomesticoSeleccionado = ScrapedWeb
-						.getHTMLWeb(urlProducto).select("div.product-content");
-				
+				Elements datosElectrodomesticoSeleccionado = ScrapedWeb.getHTMLWeb(urlProducto)
+						.select("div.product-content");
 
 				for (Element electrodomesticoSeleccionado : datosElectrodomesticoSeleccionado) {
-					
-					nombre =  electrodomesticoSeleccionado.select("h1").text();
-					System.out.println(nombre);
-					
-					brand =  electrodomesticoSeleccionado.select("div.sku").text().substring(5,12);
-					System.out.println(brand);
-			
-					precio =  Double.parseDouble(electrodomesticoSeleccionado.select("span[itemprop=priceValidUntil]").text().substring(1).replace(",", ""));
-					System.out.println(precio);
-					
-					descripcion = electrodomesticoSeleccionado.select("span[id=itempropdescription]").select("p").text();
-					System.out.println(descripcion);
-					
-					System.out.println(" ");
-					System.out.println(" ");
-					
+
+					nombre = electrodomesticoSeleccionado.select("h1").text();
+					brand = electrodomesticoSeleccionado.select("div.sku").text().substring(5, 12);
+					precio = Double.parseDouble(electrodomesticoSeleccionado.select("span[itemprop=priceValidUntil]")
+							.text().substring(1).replace(",", ""));
+					descripcion = electrodomesticoSeleccionado.select("span[id=itempropdescription]").select("p")
+							.text();
+
+					Electrodomestico e = new Electrodomestico(urlProducto, nombre, brand, precio, descripcion);
+					lstElectrodomesticos.add(e);
+
 				}
-				
+
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null, "No es posible obtener la infomacion de la pagina solicitada.");
 			}
 
 		}
 
+		PersistenciaBD p = new PersistenciaBD(conector);
+
+		for (Electrodomestico electrodomestico : lstElectrodomesticos) {
+			p.insertarInformacion(electrodomestico);
+		}
+
+	}
+
+	/*
+	 * getElectrodomesticos
+	 */
+	public ArrayList<Electrodomestico> obtenerElectrodomesticos() {
+		return lstElectrodomesticos;
 	}
 
 }
